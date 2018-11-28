@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux';
+import messageReducer from './messageReducer';
 
 const rootReducer = combineReducers({
-    state: (state = {}) => state
+    message: messageReducer
 });
 
 export default rootReducer;

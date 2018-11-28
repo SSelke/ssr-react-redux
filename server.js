@@ -3,9 +3,13 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router';
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+import reducers from './src/reducers';
 import bodyParser from 'body-parser';
 import App from './src/app';
 import { Helmet } from 'react-helmet';
+import HTML from './src/configs/htmlComponent';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,31 +17,32 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(express.static('build/public'));
 
-app.get('*', (req, res) => {
+function handleRender( req, res ) {
+
+}
+
+app.get(['*/:param', '*'], (req, res) => {
+
+    //create a new redux store instance
+    const store = createStore(reducers);
 
     const context = {};
 
     const content = ReactDOMServer.renderToString(
-        <StaticRouter location={req.url} context={context}>
-            <App />
-        </StaticRouter>
+        <Provider store={store}>
+            <StaticRouter location={req.url} context={context}>
+                <App />
+            </StaticRouter>
+        </Provider>
     );
+
+    const preloadedState = store.getState();
 
     const helmet = Helmet.renderStatic();
 
-    const html = `
-        <html>
-            <head>
-                <title>${helmet.title.toString()}</title>
-            </head>
-            <body>
-                <div id="root">${content}</div>
-                <script src="client_bundle.js"></script>
-            </body>
-        </html>
-    `;
+    const html = <HTML content={content} state={preloadedState} helmet={helmet} />;
     
-    res.send(html);
+    res.send(`<!doctype html>\n${ReactDOMServer.renderToStaticMarkup(html)}`);
 });
 
 app.listen(PORT, () => {

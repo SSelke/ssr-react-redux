@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { Helmet } from 'react-helmet';
 
 class homeComponent extends Component {
@@ -17,7 +18,7 @@ class homeComponent extends Component {
             <div>
                 {this.head()}
                 <h1>My Home Page</h1>
-                <p>Some content</p>
+                <p>{this.props.message}</p>
                 <Link to='/contact'>Contact</Link>
                 <button onClick={() => console.log("This has been logged")}>Console log</button>
             </div>
@@ -25,4 +26,6 @@ class homeComponent extends Component {
     }
 }
 
-export default homeComponent;
+const mapStateToProps = (state) => ({ message: state.message});
+
+export default connect(mapStateToProps)(homeComponent);
